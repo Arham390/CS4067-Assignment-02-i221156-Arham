@@ -1,7 +1,7 @@
 version: "3.8"
 
 services:
-  postgres:
+  postgres-db:
     image: postgres:15-alpine
     container_name: postgres-db
     environment:
@@ -22,32 +22,33 @@ services:
     build: ./backend/user-service
     container_name: user-service
     environment:
-      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres-db:5432/event_booking
     ports:
       - "4001:4001"
     depends_on:
-      postgres:
+      postgres-db:
         condition: service_healthy
 
   event-service:
     build: ./backend/event-service
     container_name: event-service
     environment:
-      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres-db:5432/event_booking
     ports:
       - "4002:4002"
     depends_on:
-      postgres:
+      postgres-db:
         condition: service_healthy
+
   booking-service:
     build: ./backend/booking-service
     container_name: booking-service
     environment:
-      - DATABASE_URL=postgresql://event_user:securepassword@postgres:5432/event_booking
+      - DATABASE_URL=postgresql://event_user:securepassword@postgres-db:5432/event_booking
     ports:
       - "4003:4003"
     depends_on:
-      postgres:
+      postgres-db:
         condition: service_healthy
 
   notification-service:
@@ -58,7 +59,8 @@ services:
     ports:
       - "4004:4004"
     depends_on:
-      - redis
+      redis:
+        condition: service_started
 
   redis:
     image: redis:alpine
@@ -72,10 +74,14 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - user-service
-      - event-service
-      - booking-service
-      - notification-service
+      user-service:
+        condition: service_started
+      event-service:
+        condition: service_started
+      booking-service:
+        condition: service_started
+      notification-service:
+        condition: service_started
 
 volumes:
   postgres_data:
