@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: onlineeventbookingarham
+data:
+  DATABASE_URL: "postgresql://event_user:securepassword@postgres:5432/event_booking"
+  USER_SERVICE_URL: "http://user-service"
+  EVENT_SERVICE_URL: "http://event-service"
+  BOOKING_SERVICE_URL: "http://booking-service"
+  NOTIFICATION_SERVICE_URL: "http://notification-service"
